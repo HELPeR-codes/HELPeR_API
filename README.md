@@ -14,15 +14,11 @@ The seven codes and no of incidents of each are tabulated below:
    </td>
    <td>Definition
    </td>
-   <td>No. of incidents
-   </td>
   </tr>
   <tr>
    <td>Advice
    </td>
    <td>offers ideas and suggestions actions for coping with challenges
-   </td>
-   <td>77
    </td>
   </tr>
   <tr>
@@ -30,15 +26,11 @@ The seven codes and no of incidents of each are tabulated below:
    </td>
    <td>refers to information sources, e.g., books, websites, contacts
    </td>
-   <td>44
-   </td>
   </tr>
   <tr>
    <td>Facts or situation appraisal
    </td>
    <td>Offers facts or reassesses the situation
-   </td>
-   <td>181
    </td>
   </tr>
   <tr>
@@ -46,15 +38,11 @@ The seven codes and no of incidents of each are tabulated below:
    </td>
    <td>Shares personal stories or incidents
    </td>
-   <td>220
-   </td>
   </tr>
   <tr>
    <td>Opinions
    </td>
    <td>Offers view or judgment formed about something. It is not necessarily based on fact or knowledge
-   </td>
-   <td>60
    </td>
   </tr>
   <tr>
@@ -62,15 +50,11 @@ The seven codes and no of incidents of each are tabulated below:
    </td>
    <td>Expressing feelings (e.g., fear, joy, despair), listening, and seeking or communicating concern, empathy, or reassurance
    </td>
-   <td>196
-   </td>
   </tr>
   <tr>
    <td>Others
    </td>
    <td>The comment doesn’t fit any of above
-   </td>
-   <td>38
    </td>
   </tr>
 </table>
