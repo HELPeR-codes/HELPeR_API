@@ -212,7 +212,7 @@ import json
 import os
 if __name__ == '__main__':
     nlpdb = config.NLPDB
-    EN = config.EN
+    EN = config.MODEL_EMBED
     train_file_path = 'test.file.path'
 
     if config.debug:

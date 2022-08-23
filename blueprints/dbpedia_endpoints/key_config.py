@@ -1,15 +1,22 @@
-import spacy
 
 import spacy_dbpedia_spotlight
+import sentence_transformers
+# import spacy
 from sentence_transformers import SentenceTransformer
 class config:
     nlpdb = spacy_dbpedia_spotlight.create('en')
     # nlpdb.add_pipe('dbpedia_spotlight')
+    # nlpdb = spacy.load('en_core_web_lg')
+    # Use your endpoint: don't put any trailing slashes, and don't include the /annotate path
+    # nlpdb.add_pipe('dbpedia_spotlight', config={'dbpedia_rest_endpoint': 'http://localhost:2222/rest'})
+    # nlpdb.add_pipe('dbpedia_spotlight', config={'process': 'candidates'})
+
+    # from embedding_as_service.text.encode import Encoder
+    # EN = Encoder(embedding='bert', model='bert_base_cased', max_seq_length=256)
 
     MODEL_EMBED = None
     # initialize sentence transformer model
     MODEL_EMBED = SentenceTransformer('allenai-specter')
-
 
     debug=False
     IR_CORPUS = 'data/iirmirbook.tsv'
