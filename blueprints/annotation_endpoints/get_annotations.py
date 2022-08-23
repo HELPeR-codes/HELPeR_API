@@ -16,7 +16,7 @@ def updates(from_date):
         print("cannot parse date ")
         return json.dumps({"error":"not able to parse date"})
 
-    # print(dt,datetime.now())
+    print(dt,datetime.now())
 
     if dt > datetime.now():
         return json.dumps({"error":"future date"})
@@ -27,8 +27,11 @@ def updates(from_date):
     df = None
     startdate=dt
     enddate = datetime.now()
+    print(startdate,enddate)
     while startdate < enddate:
-        for file in list(pathlib.Path(annotation_folder).glob('*_daily_'+datetime.strftime(startdate,"%y_%-m_%-d")+'*')):
+        print(annotation_folder,datetime.strftime(startdate,"%y_%-m_%-d"))
+        for file in list(pathlib.Path(annotation_folder).glob('*_daily_'+datetime.strftime(startdate,"%y_%m_%d")+'*')):
+            print(file)
             dftemp = pd.read_json(file)
             dftemp['date']=startdate
             if df is None:
