@@ -5,7 +5,7 @@ import requests
 # initialize language model
 from blueprints.dbpedia_endpoints.key_config import config
 import operator
-from blueprints.dbpedia_endpoints.db_util import  preprocessText, get_abstract, get_type, scoring, remove_html,write_notused,get_wikipage
+from blueprints.dbpedia_endpoints.db_util import  preprocessText, get_abstract, get_type, scoring, remove_html,write_notused,get_wikipagetext, get_wikipage
 import json
 import os
 import numpy as np
@@ -28,8 +28,8 @@ def extract_dbpedia(text, nlpdb, EN):
     entity_concept={}
     entities_list=[]
 
-    for ent in doc.ents:
-        print(ent.text)
+    # for ent in doc.ents:
+    #     print(ent.text)
 
     for ent in doc.ents:
         # dup = 0
@@ -49,7 +49,7 @@ def extract_dbpedia(text, nlpdb, EN):
                 continue
 
             #removed abstract extraction -taking too much time
-            scor = scoring([ent.text, text], EN)
+            scor = scoring([get_wikipagetext(ent.kb_id_), text + " Information Retrieval "], EN)
 
             linkscore = 1
             if ent and ent._.dbpedia_raw_result and ent._.dbpedia_raw_result['@similarityScore']:
@@ -62,10 +62,11 @@ def extract_dbpedia(text, nlpdb, EN):
                     if "DBpedia:" in x:
                         alltypes.append(x.split("DBpedia:")[1])
 
-            # a = get_type(ent.kb_id_)
-            # if a is not None:
-            #     for obj in a['results']['bindings']:
-            #         alltypes.append(obj['obj']['value'].split("/")[-1])
+            a = get_type(ent.kb_id_)
+            if a is not None:
+                for obj in a['results']['bindings']:
+                    alltypes.append(obj['obj']['value'].split("/")[-1])
+
 
             # if len(set(alltypes).intersection(config.types_not_allowed)) > 0:
             #     continue
@@ -125,7 +126,7 @@ def extract_dbpedia(text, nlpdb, EN):
     # if config.debug:
     #     db_entities_filtered = db_entities[db_entities['is_filtered'] == 1]
     #     write_notused(db_entities_filtered)
-    db_remain = db_entities[db_entities['is_filtered'] == 0].sort_values(['overall_score'],ascending=False).head(10)
+    db_remain = db_entities[db_entities['is_filtered'] == 0].sort_values(['overall_score'],ascending=False).head(20)
     db_remain['wikipage'] = db_remain['dbpedia_url'].apply(lambda x : get_wikipage(x))
     db_remain = db_remain.reset_index(drop=True)
 
@@ -133,34 +134,32 @@ def extract_dbpedia(text, nlpdb, EN):
 
 
 #
-# if __name__ == '__main__':
-#
-#     nlpdb = config.nlpdb
-#     EN = config.MODEL_EMBED
-#     train_file_path = '/Users/khushboo/Workspace/HELPeR_API/data/test.file.path'
-#
-#     if config.debug:
-#         train_file_path = 'doc_list'
-#     train_file_list = []
-#     base_path='/Users/khushboo/Workspace/HELPeR_API/'
-#     file = open(train_file_path, 'r', encoding='utf8')
-#     for line in file:
-#
-#         text = open(base_path+line.replace("\n", "").strip(), 'r').read()
-#         if len(text.strip())  < 10:
-#             print("skipping almost empty file ",line)
-#             continue
-#
-#         # if os.path.exists(base_path+line.replace("\n", "") + ".concept.json"):
-#         #     continue
-#         list_concept, usort = extract_dbpedia(text, nlpdb, EN)
-#         fwrite = open(base_path+line.replace("\n", "") + ".concept.json", 'w')
-#         for key in usort:
-#             fwrite.write(json.dumps(list_concept[key]))
-#             fwrite.write("\n")
-#         fwrite.close()
-#
-#         # text_t = preprocessTextMin(text_t,lower=False,stemming=False)
-#         # fwrite = open(line.replace("\n", ""), 'w')
-#         # fwrite.write(text_t)
-#         # fwrite.close()
+if __name__ == '__main__':
+
+    nlpdb = config.nlpdb
+    EN = config.MODEL_EMBED
+    train_file_path = '/Users/khushboo/Workspace/HELPeR_API/data/test.file.path'
+
+    if config.debug:
+        train_file_path = 'doc_list'
+    train_file_list = []
+    base_path='/Users/khushboo/Workspace/HELPeR_API/'
+    file = open(train_file_path, 'r', encoding='utf8')
+    for line in file:
+
+        text = open(base_path+line.replace("\n", "").strip(), 'r').read()
+        if len(text.strip())  < 10:
+            print("skipping almost empty file ",line)
+            continue
+
+        if os.path.exists(base_path+line.replace("\n", "") + ".concept.json"):
+            continue
+        print(line)
+        list_concept = extract_dbpedia(text, nlpdb, EN)
+        print(list_concept)
+
+
+        # text_t = preprocessTextMin(text_t,lower=False,stemming=False)
+        # fwrite = open(line.replace("\n", ""), 'w')
+        # fwrite.write(text_t)
+        # fwrite.close()

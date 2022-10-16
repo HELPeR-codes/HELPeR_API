@@ -22,13 +22,13 @@ class config:
     debug=False
 
     #atleast 0.6 score
-    sim_score=0.6
+    sim_score=0.7
 
     #atleast 0.8 confidence
     link_score=0.8
 
     # Not these entity types
-    types_not_allowed = set(['Place', 'Species', 'Event', 'Person', 'Animal', 'Species', 'MusicalWork', 'Film','Location','Country'])
+    types_not_allowed = set(['MilitaryUnit','Place', 'Species', 'Event','Website',  'Animal', 'Species', 'MusicalWork', 'Film','Location','Country'])
 
     #not_used_entities_file='/home/khushboo/role_classification/not_used_entities_file'
     #f_notusedwriter = open(not_used_entities_file,'w+')

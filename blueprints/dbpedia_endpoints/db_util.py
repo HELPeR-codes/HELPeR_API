@@ -18,6 +18,8 @@ def remove_html_from_text(htmltext):
     data = data.replace("DRAFT April Cambridge University Press Feedback welcome"," ")
     data = data.replace("ﬁ","fi")
     data = data.replace("ﬂ", "fl")
+    data = data.replace("ﬀ","ff")
+
     data_noenglish = re.sub("[a-zA-Z0-9]+", "",data).strip()
 
     if len(data_noenglish) > 0:
@@ -70,6 +72,7 @@ def preprocessText(text, stemming=False, lower=False):
     # fwrite = open("pre-processed_file.txt", 'w')
     # fwrite.write(" ".join(tokens))
     return " ".join(tokens)
+
 
 
 
@@ -131,13 +134,34 @@ sem = threading.Semaphore()
 
 def get_wikipage(url):
     wikipage=None
-    data = requests.get(url.replace("/resource/", "/data/") + ".json").json()
-    dbpedia_json = data[url]
+    data_json={}
+    try:
+        data = requests.get(url.replace("/resource/", "/data/") + ".json",timeout=60).json()
+        dbpedia_json = data[url]
+        if 'http://xmlns.com/foaf/0.1/isPrimaryTopicOf' in dbpedia_json:
+            wikipage = dbpedia_json['http://xmlns.com/foaf/0.1/isPrimaryTopicOf'][0]['value']
 
-    if 'http://xmlns.com/foaf/0.1/isPrimaryTopicOf' in dbpedia_json:
-        wikipage = dbpedia_json['http://xmlns.com/foaf/0.1/isPrimaryTopicOf'][0]['value']
+    except:
+        print("timed out for wikipage", url)
     return wikipage
 
+def get_wikipagetext(url):
+    wikipage=None
+    data_json={}
+    text = ""
+    try:
+        data = requests.get(url.replace("/resource/", "/data/") + ".json",timeout=60).json()
+        dbpedia_json = data[url]
+        if 'http://dbpedia.org/ontology/abstract' in dbpedia_json:
+            alltexts = dbpedia_json['http://dbpedia.org/ontology/abstract']
+            for a in alltexts:
+                if a['lang'] == 'en':
+                    text = a['value']
+
+
+    except:
+        print("timed out for wikipage", url)
+    return text
 def write_notused(db):
     while True:
         sem.acquire()

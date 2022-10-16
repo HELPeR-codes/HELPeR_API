@@ -38,7 +38,7 @@ def sent_infer(input_text, model, model_advice,tokenizer,nlp_role):
     infer_list[1] = []
     no_sent = True
     classp = 0
-    input_text = input_text.replace("\n", " ")
+    input_text = str(input_text).replace("\n", " ")
     for sent in list(nlp_role(str(input_text)).sents):
         if len(str(sent).strip().split(" ")) > 3:
             no_sent = False
@@ -63,7 +63,7 @@ def sent_infer(input_text, model, model_advice,tokenizer,nlp_role):
             # loss = outputs.loss
             logits = outputs.logits
             probs = softmax(logits.detach().numpy())
-            #         print(probs)
+            print("opinion",probs)
             classp = np.argmax(probs)
             infer_list[classp].append(probs[0][classp])
     #             print(str(sent),classp)
@@ -77,7 +77,7 @@ def sent_infer(input_text, model, model_advice,tokenizer,nlp_role):
     if no_sent == True:
         infer_list[0].append(1)
     #     print(infer_list)
-    return classp
+    return (classp, infer_list[classp])
 
 
 # Infer with the whole text together
@@ -88,28 +88,67 @@ def infer(input_text, model,tokenizer):
     outputs = model(**inputs, labels=labels)
     # loss = outputs.loss
     logits = outputs.logits
+    print(logits)
+    probs = softmax(logits.detach().numpy())
+    print(probs)
+
     classp = np.argmax(softmax(logits.detach().numpy()))
-    return classp
+    return (classp, probs[0][classp])
 
 def extract_roles(text,nlp_role,role_models,rtokenizer):
+    textinput = str(text)
 
     role_output = { role:0 for role in roles}
-
-    if text is None:
+    role_score={ role:0 for role in roles}
+    if textinput is None:
         return role_output
 
     for column_name in roles:
+        role_output[column_name] = 0
+        role_output[column_name + "_score"] = 0
+
         if column_name == 'opinion':
-            role_output[column_name] = sent_infer(text, role_models[column_name],role_models['advice'],rtokenizer,nlp_role)
+            output = sent_infer(textinput, role_models[column_name],role_models['advice'],rtokenizer,nlp_role)
+            print(output)
+            if int(output[0]) == 1 and float(output[1][0]) > 0.8:
+                role_output[column_name] =output[0]
+                role_output[column_name+"_score"] = output[1]
+                role_score[column_name] = output[1]
         else:
-            role_output[column_name] = infer(text, role_models[column_name],rtokenizer)
+            output = infer(textinput, role_models[column_name],rtokenizer)
+            print(column_name, output)
+            if int(output[0]) == 1 and float(output[1]) > 0.8:
+                role_output[column_name] =output[0]
+                role_output[column_name + "_score"] = output[1]
+                role_score[column_name] = output[1]
 
     no_class = True
+
     for column_name in roles:
         if role_output[column_name] == 1:
             no_class = False
             break
+    role_output['other_score'] = 0
     if no_class == True:
         role_output['other'] = 1
+        role_output['other_score'] = 1
+
+    for column_name in roles:
+        role_output[column_name+"_sents"] = ""
+        if role_output[column_name] == 1:
+            print(textinput)
+            input_text = str(textinput).replace("\n", " ")
+            for sent in list(nlp_role(str(input_text)).sents):
+                print(sent.text)
+                if column_name == 'opinion':
+                    output = sent_infer(sent.text, role_models[column_name],role_models['advice'],rtokenizer,nlp_role)
+                else:
+                    output = infer(sent.text, role_models[column_name],rtokenizer)
+                print(output)
+                if int(output[0] == 1):
+                    print(output[0],output[1][0])
+                if int(output[0]) == 1 and float(output[1][0]) > 0.8:
+                    role_output[column_name+"_sents"] += " "+sent.text
+
 
     return role_output
